@@ -68,7 +68,7 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
       - name: Dependaboja
-        uses: ./.github/actions/dependaboja
+        uses: evoja/dependaboja
 ```
 
 ## Options
