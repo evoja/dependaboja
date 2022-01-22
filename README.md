@@ -2,7 +2,7 @@
 
 This is an action that lets you to merge dependabot PRs to aggregated branches
 automatically and keep these aggregated branches in sync with master.
-By using this approach you won't need to pass handreds dependency PRs though
+By using this approach you won't need to pass hundreds dependency PRs through
 your workflow. Instead you can work with smaller amount of branches.
 
 ## How to use
@@ -68,7 +68,7 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
       - name: Dependaboja
-        uses: evoja/dependaboja
+        uses: evoja/dependaboja@v0
 ```
 
 ## Options
