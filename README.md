@@ -5,6 +5,8 @@ automatically and keep these aggregated branches in sync with master.
 By using this approach you won't need to pass hundreds dependency PRs through
 your workflow. Instead you can work with smaller amount of branches.
 
+![a visualization of the approach](./diagram.png)
+
 ## How to use
 
 ### Prepare your dependabot configuration
