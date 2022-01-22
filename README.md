@@ -1,0 +1,102 @@
+# Dependaboja
+
+This is an action that lets you to merge dependabot PRs to aggregated branches
+automatically and keep these aggregated branches in sync with master.
+By using this approach you won't need to pass handreds dependency PRs though
+your workflow. Instead you can work with smaller amount of branches.
+
+## How to use
+
+### Prepare your dependabot configuration
+
+Dependaboja's approach suggests to aggregate all dependency updates
+in a small amount of branches depending on importancy, frequency and possible effect.
+
+For instance, in the following configuratin we aggregate all dependencies in
+two branches: major and minor. Minor updates are expected to be frequent but
+they might be easier to update and test, while major might require more attention.
+
+**.github/dependabot.yml**
+```
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: deps/npm-maj
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: '**'
+        update-types:
+          - 'version-update:semver-minor'
+          - 'version-update:semver-patch'
+
+  - package-ecosystem: npm
+    directory: /
+    target-branch: deps/npm-min
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: '**'
+        update-types:
+          - 'version-update:semver-major'
+```
+
+### Configure your workflow
+
+Then use Dependaboja from workflow:
+
+**.github/workflows/dependaboja.yml**
+```
+name: dependaboja
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [deps/**]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  dependaboja:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Dependaboja
+        uses: ./.github/actions/dependaboja
+```
+
+## Options
+All parameters are optional.
+
+#### merge_type
+
+Way of merge to use for syncing: `merge`, `rebase`, `squah`. Default is `rebase`.
+
+#### committer_name, committer_email
+
+Author of merge commits during syncing. Default is `dependaboja<-->`.
+
+#### disabled_pr_targets
+
+Comma separated list of branches wich are not allowed to be a PR target for auto merge. Default is `master,main`.
+
+If the workflow gets triggered by a PR with a disabled target, it ignores the PR and exits with success status.
+
+#### sync_with
+Comma separated list of branches which should be merged to agregated dependency branches automatically. Default is `master,main`.
+
+If the workflow gets triggerd by a push to another branch, it ignroes the push
+and exists with success status.
+
+#### fetch_depth
+
+We need a deep fetch in order to merge. It limits the max value. Default is `0`.
+
+You might want to use it for repositories with huge amount of commits when you know
+that some smaller number is sufficient for merging.

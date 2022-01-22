@@ -1,0 +1,188 @@
+name: Dependaboja
+description: Merge dependabot PRs to aggregated branches and sync the aggregated branches with master
+
+inputs:
+  merge_type:
+    description: 'Way of merge to use for syncing: merge/rebase/squah. Default is "rebase"'
+    required: false
+    default: rebase
+  committer_name:
+    required: false
+    default: dependaboja
+  committer_email:
+    required: false
+    default: --
+  disabled_pr_targets:
+    description: Comma separated list of branches wich are not allowed to be a PR target for auto merge. Default is 'master,main'
+    required: false
+    default: master,main
+  sync_with:
+    description: Comma separated list of branches which should be merged to agregated dependency branches automatically. Default is 'master,main'
+    required: false
+    default: master,main
+  fetch_depth:
+    description: We need a deep fetch in order to merge. It limits the max value. Default is 0
+    required: false
+    default: 0
+
+
+outputs: {}
+
+runs:
+  using: composite
+  steps:
+    - name: Run on PR
+      if: ${{ github.event_name == 'pull_request' }}
+      shell: bash
+      run: |
+        echo This was a pull request! Try to merge it to the target branch automatically.
+
+    - name: Report skip branch
+      if: ${{github.event_name == 'pull_request' && steps.shouldmergepr.outputs.shouldmerge != 1}}
+      shell: bash
+      run: echo "::notice::Skip this PR"
+
+    - name: Shoud merge the PR?
+      id: shouldmergepr
+      if: >- # Check if it's dependabot
+        ${{
+          github.event_name == 'pull_request'
+          && github.actor == 'dependabot[bot]'
+          && startsWith(github.head_ref, 'dependabot/')
+        }}
+      shell: bash
+      env:
+        DISABLED_TARGETS: ${{inputs.disabled_pr_targets}}
+        BASE_REF: ${{github.base_ref}}
+      run: | # Check if the branch is enabled
+        readarray -d , -t MERGEREFS <<< "$DISABLED_TARGETS"
+        ENABLED=1
+        for REF in "${MERGEREFS[@]}"; do
+          if [ "$REF" == "$BASE_REF" ]; then
+            ENABLED=0
+          fi
+        done
+        echo Do we merge?: $([ "$ENABLED" == 1 ] && echo yes || echo no)
+        echo "::set-output name=shouldmerge::$ENABLED"
+
+    - name: Merge the PR
+      if: ${{steps.shouldmergepr.outputs.shouldmerge == 1}}
+      shell: bash
+      env:
+        PR_URL: ${{github.event.pull_request.html_url}}
+        GITHUB_TOKEN: ${{github.token}}
+      run: gh pr merge --auto --rebase "$PR_URL"
+
+
+
+    - name: Run on push
+      if: ${{ github.event_name == 'push' }}
+      shell: bash
+      run: echo This was a push! Try to sync it with dependabot target branches.
+
+    - name: Check merge type
+      id: mergetype
+      if: ${{ github.event_name == 'push' }}
+      shell: bash
+      env:
+        TYPE: ${{inputs.merge_type}}
+      run: |
+        if [[ "$TYPE" != 'rebase' && "$TYPE" != 'merge' && "$TYPE" != 'squash' ]]; then
+          echo "::error::Invalid merge_type: $TYPE"
+          exit 1
+        fi
+
+    - name: Is it a branch to sync?
+      id: shouldsync
+      if: ${{ github.event_name == 'push' }}
+      shell: bash
+      env:
+        BRANCHES_TO_SYNC: ${{inputs.sync_with}}
+        REF_NAME: ${{github.ref_name}}
+      run: |
+        readarray -d , -t SYNCBRANCHES <<< "$BRANCHES_TO_SYNC"
+        for BRANCH in "${SYNCBRANCHES[@]}"; do
+          if [ "$BRANCH" == "$REF_NAME" ]; then
+            echo "::set-output name=shouldsync::1"
+          fi
+        done
+
+    - name: Report skip branch
+      if: ${{github.event_name == 'push' && steps.shouldsync.outputs.shouldsync != 1}}
+      shell: bash
+      run: echo "::notice::Skip this branch"
+
+    - name: Show YQ version
+      if: ${{steps.shouldsync.outputs.shouldsync == 1}}
+      shell: bash
+      run: |
+        jq --version || echo "no-jq"
+        yq --version || echo "no-yq"
+
+    - name: Find dependabot config
+      id: find_dependabot
+      if: ${{steps.shouldsync.outputs.shouldsync == 1}}
+      shell: bash
+      run: |
+        if [ -f ./.github/dependabot.yaml ]; then
+          echo "::set-output name=ext::yaml"
+        elif [ -f ./.github/dependabot.yml ]; then
+          echo "::set-output name=ext::yml"
+        else
+          echo "::error::Cannot find dependabot config"
+          exit 1
+        fi
+
+    - name: Deep clone
+      if: ${{steps.shouldsync.outputs.shouldsync == 1}}
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: ${{inputs.fetch_depth}}
+
+
+    - name: Configure git environment
+      if: ${{steps.shouldsync.outputs.shouldsync == 1}}
+      shell: bash
+      env:
+        NAME: ${{inputs.committer_name}}
+        EMAIL: ${{inputs.committer_email}}
+      run: |
+        git config user.name "$NAME"
+        git config user.email "$EMAIL"
+
+    - name: Read dependabot config and sync target branches
+      if: ${{steps.shouldsync.outputs.shouldsync == 1}}
+      shell: bash
+      env:
+        CMD: ${{steps.mergetype.outputs.cmd}}
+        DEPCONF: ./.github/dependabot.${{steps.find_dependabot.outputs.ext}}
+        REF: ${{github.ref}}
+        TYPE: ${{inputs.merge_type}}
+      run: |
+        TARGETS=($(yq e '.updates[].["target-branch"]' "$DEPCONF"))
+        for BRANCH in "${TARGETS[@]}"; do
+          echo "::group::Syncing $BRANCH"
+          if [ "$TYPE" == 'rebase' ]; then
+            git checkout -b "$BRANCH" "origin/$BRANCH"
+            git rebase -X theirs "$REF"
+          elif [ "$TYPE" == 'merge' ]; then
+            git checkout -b "$BRANCH" "origin/$BRANCH"
+            git merge -X theirs "$REF"
+          elif [ "$TYPE" == 'squash' ]; then
+            git checkout -b "$BRANCH" "$REF"
+            git merge --squash -X ours "origin/$BRANCH"
+            if [ -n "$(git status --porcelain)" ]; then
+              git commit --no-edit
+            fi;
+          else
+            echo "::error::Invalid merge type: $TYPE"
+            exit 1
+          fi
+          git push --force origin "$BRANCH"
+          echo "Done with syncing $BRANCH"
+          echo "::endgroup::"
+        done
+
+branding:
+  icon: git-merge
+  color: white

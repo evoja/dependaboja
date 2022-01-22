@@ -1,0 +1,11 @@
+name: Test
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+
+  editorconfig-checker:
+    name: ec
+    uses: evoja/java-commons/.github/workflows/editorconfig-checker.yaml@13541445ad45110480842df586da06b72d13b15f # same as @wf/editorconfig-checker/00

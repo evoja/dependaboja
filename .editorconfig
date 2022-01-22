@@ -1,0 +1,17 @@
+root = true
+
+[*]
+indent_style = tab
+indent_size = unset
+tab_width = unset
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = true
+charset = utf-8
+
+[*.{yaml,yml,md}]
+indent_style = space
+indent_size = 2
+
+[LICENSE]
+indent_style = space
