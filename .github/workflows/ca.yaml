@@ -7,5 +7,11 @@ on:
 jobs:
 
   editorconfig-checker:
-    name: ec
-    uses: evoja/dependaboja/.github/workflows/editorconfig-checker.yaml@9fcead464c170975583ffe8eb3478d153a86d421
+    name: Check editorconfig
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Check editorconfig
+        uses: editorconfig-checker/action-editorconfig-checker@0527b11555ed46afd00df746f35b79cb7f7b68c2 # refs/tags/v1.0.0
