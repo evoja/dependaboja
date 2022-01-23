@@ -35,9 +35,9 @@ Merge dependabot PRs to aggregated branches and sync the aggregated branches wit
 ------------
 Changelog file follows [this convention](https://keepachangelog.com/)
 
-[unreleased]: https://github.com/evoja/dependaboja/compare/v.0/0.0...master
+[unreleased]: https://github.com/evoja/dependaboja/compare/v.0/0.1...master
 
-[c-0.0.1]: https://github.com/evoja/dependaboja/compare/v.0/0.1...v.0/0.1
+[c-0.0.1]: https://github.com/evoja/dependaboja/compare/v.0/0.0...v.0/0.1
 [0.0.1]: https://github.com/evoja/dependaboja/tree/v.0/0.1
 
 [0.0.0]: https://github.com/evoja/dependaboja/tree/v.0/0.0
