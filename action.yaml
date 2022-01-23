@@ -37,10 +37,6 @@ runs:
       run: |
         echo This was a pull request! Try to merge it to the target branch automatically.
 
-    - name: Report skip branch
-      if: ${{github.event_name == 'pull_request' && steps.shouldmergepr.outputs.shouldmerge != 1}}
-      shell: bash
-      run: echo "::notice::Skip this PR"
 
     - name: Shoud merge the PR?
       id: shouldmergepr
@@ -65,6 +61,10 @@ runs:
         echo Do we merge?: $([ "$ENABLED" == 1 ] && echo yes || echo no)
         echo "::set-output name=shouldmerge::$ENABLED"
 
+    - name: Report skip branch
+      if: ${{github.event_name == 'pull_request' && steps.shouldmergepr.outputs.shouldmerge != 1}}
+      shell: bash
+      run: echo "::notice::Skip this PR"
     - name: Merge the PR
       if: ${{steps.shouldmergepr.outputs.shouldmerge == 1}}
       shell: bash
