@@ -16,6 +16,16 @@
 
 ## v0.0
 
+#### [0.0.1] - 2022-01-23
+##### Fixed
+Change order of one step that was responsible for reporting of skipping behaviour.
+Invalid order caused a tiny mistake that didn't affect the main feature.
+Only in case of skipping the reporting step it was not invoked.
+
+##### Added
+Some inline comments which explain structure and behaviour of the action.
+
+
 #### [0.0.0] - 2022-01-22
 Merge dependabot PRs to aggregated branches and sync the aggregated branches with master.
 

@@ -31,12 +31,28 @@ outputs: {}
 runs:
   using: composite
   steps:
+
+# The action consists of two parts: for "pull_request" and for "push".
+# If "push" happens, then all "pull_request" related steps are skipped,
+# and vice versa.
+
+
+#################################
+#   Run on a pull request       #
+#################################
+
+# In this part of action we check if the workflow was triggered by a PR:
+# If "YES" we invoke some checkings and try to merge.
+# Otherwise we just skip all steps of this part.
+
     - name: Run on PR
       if: ${{ github.event_name == 'pull_request' }}
       shell: bash
       run: |
         echo This was a pull request! Try to merge it to the target branch automatically.
 
+# Verify some properties of the PR and also check that the target branch is enabled for auto-merging
+# For instance, by default we do not allow to automerge to "master"
 
     - name: Shoud merge the PR?
       id: shouldmergepr
@@ -61,10 +77,15 @@ runs:
         echo Do we merge?: $([ "$ENABLED" == 1 ] && echo yes || echo no)
         echo "::set-output name=shouldmerge::$ENABLED"
 
+    # Well, we have figured out that we are not going to perform the merge.
+    # Report about it to logs and skip all further steps.
     - name: Report skip branch
       if: ${{github.event_name == 'pull_request' && steps.shouldmergepr.outputs.shouldmerge != 1}}
       shell: bash
       run: echo "::notice::Skip this PR"
+
+# Perform merge of the PR:
+
     - name: Merge the PR
       if: ${{steps.shouldmergepr.outputs.shouldmerge == 1}}
       shell: bash
@@ -75,11 +96,20 @@ runs:
 
 
 
+#################################
+#   Run on a push event         #
+#################################
+
+# In this part of action we check if the workflow was triggered by a push event:
+# If "YES" we invoke some checkings and try to sync updates with target branches.
+# Otherwise we just skip all steps of this part.
+
     - name: Run on push
       if: ${{ github.event_name == 'push' }}
       shell: bash
       run: echo This was a push! Try to sync it with dependabot target branches.
 
+    # If "merge_type" was configured incorrectly then fail the action.
     - name: Check merge type
       id: mergetype
       if: ${{ github.event_name == 'push' }}
@@ -91,6 +121,10 @@ runs:
           echo "::error::Invalid merge_type: $TYPE"
           exit 1
         fi
+
+# Check that we want to sync with the the branch that has triggered the event.
+# For instance, by default we want to sync with "master" or "main".
+# Puth to any other branch would be ignored.
 
     - name: Is it a branch to sync?
       id: shouldsync
@@ -107,10 +141,14 @@ runs:
           fi
         done
 
+    # Well, we have figured out that it's not a branch that we want to sycn with.
+    # Report about it to logs and skip all further steps.
     - name: Report skip branch
       if: ${{github.event_name == 'push' && steps.shouldsync.outputs.shouldsync != 1}}
       shell: bash
       run: echo "::notice::Skip this branch"
+
+# Perform sync:
 
     - name: Show YQ version
       if: ${{steps.shouldsync.outputs.shouldsync == 1}}
