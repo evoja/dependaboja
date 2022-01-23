@@ -16,7 +16,7 @@
 
 ## v0.0
 
-#### [0.0.1] - 2022-01-23
+#### [0.0.1] - [2022-01-23][c-0.0.1]
 ##### Fixed
 Change order of one step that was responsible for reporting of skipping behaviour.
 Invalid order caused a tiny mistake that didn't affect the main feature.
