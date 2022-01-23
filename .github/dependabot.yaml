@@ -1,0 +1,26 @@
+version: 2
+
+updates:
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: deps/gha-maj
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: '**'
+        update-types:
+          - 'version-update:semver-minor'
+          - 'version-update:semver-patch'
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: deps/gha-min
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: '**'
+        update-types:
+          - 'version-update:semver-major'

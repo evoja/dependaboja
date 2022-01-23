@@ -1,0 +1,24 @@
+name: dependaboja
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches: [deps/**]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2.4.0
+      - name: Dependaboja
+        uses: evoja/dependaboja@v.0/0.0
+        with:
+          disabled_pr_targets: dev,master
+          sync_with: dev
