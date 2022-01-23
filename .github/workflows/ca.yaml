@@ -4,6 +4,9 @@ on:
     branches:
       - '**'
 
+permissions:
+  packages: none
+
 jobs:
 
   editorconfig-checker:
