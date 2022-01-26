@@ -197,7 +197,7 @@ runs:
         REF: ${{github.ref}}
         TYPE: ${{inputs.merge_type}}
       run: |
-        TARGETS=($(yq e '.updates[].["target-branch"]' "$DEPCONF"))
+        TARGETS=($(yq e '[.updates[].["target-branch"]]|unique|.[]' "$DEPCONF"))
         for BRANCH in "${TARGETS[@]}"; do
           echo "::group::Syncing $BRANCH"
           if [ "$TYPE" == 'rebase' ]; then

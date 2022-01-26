@@ -16,6 +16,10 @@
 
 ## v0.0
 
+#### [0.0.2] - [2022-01-26][c-0.0.2]
+##### Fixed
+* Start supporting dependabot configs which contained several sections with the same target branch.
+
 #### [0.0.1] - [2022-01-23][c-0.0.1]
 ##### Fixed
 Change order of one step that was responsible for reporting of skipping behaviour.
@@ -35,7 +39,10 @@ Merge dependabot PRs to aggregated branches and sync the aggregated branches wit
 ------------
 Changelog file follows [this convention](https://keepachangelog.com/)
 
-[unreleased]: https://github.com/evoja/dependaboja/compare/v.0/0.1...master
+[unreleased]: https://github.com/evoja/dependaboja/compare/v.0/0.2...master
+
+[c-0.0.2]: https://github.com/evoja/dependaboja/compare/v.0/0.1...v.0/0.2
+[0.0.2]: https://github.com/evoja/dependaboja/tree/v.0/0.2
 
 [c-0.0.1]: https://github.com/evoja/dependaboja/compare/v.0/0.0...v.0/0.1
 [0.0.1]: https://github.com/evoja/dependaboja/tree/v.0/0.1
