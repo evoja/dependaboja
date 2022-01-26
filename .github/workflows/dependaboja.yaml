@@ -12,13 +12,13 @@ permissions:
   contents: write
 
 jobs:
-  dependabot:
+  dependaboja:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2.4.0
       - name: Dependaboja
-        uses: evoja/dependaboja@v.0/0.0
+        uses: evoja/dependaboja@v.0/0.2
         with:
           disabled_pr_targets: dev,master
           sync_with: dev
