@@ -134,7 +134,7 @@ runs:
         BRANCHES_TO_SYNC: ${{inputs.sync_with}}
         REF_NAME: ${{github.ref_name}}
       run: |
-        readarray -d , -t SYNCBRANCHES <<< "$BRANCHES_TO_SYNC"
+        readarray -d , -t SYNCBRANCHES < <(printf "%s" "$BRANCHES_TO_SYNC")
         for BRANCH in "${SYNCBRANCHES[@]}"; do
           if [ "$BRANCH" == "$REF_NAME" ]; then
             echo "::set-output name=shouldsync::1"

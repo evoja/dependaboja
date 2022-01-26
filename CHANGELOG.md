@@ -19,6 +19,7 @@
 #### [0.0.2] - [2022-01-26][c-0.0.2]
 ##### Fixed
 * Start supporting dependabot configs which contained several sections with the same target branch.
+* Syncing a single `sync_with` branch.
 
 #### [0.0.1] - [2022-01-23][c-0.0.1]
 ##### Fixed
