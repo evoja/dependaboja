@@ -54,11 +54,6 @@ runs:
       run: |
         echo This was a pull request! Try to merge it to the target branch automatically.
 
-    - name: Checking if a branch exists
-      if: ${{ inputs.create_aggregated_branches_if_missed }}
-      shell: bash
-      run: git checkout -b deps/gha-maj
-
 # Verify some properties of the PR and also check that the target branch is enabled for auto-merging
 # For instance, by default we do not allow to automerge to "master"
 
@@ -209,10 +204,10 @@ runs:
         for BRANCH in "${TARGETS[@]}"; do
           echo "::group::Syncing $BRANCH"
           if [ "$TYPE" == 'rebase' ]; then
-            git checkout -b "$BRANCH" "origin/$BRANCH"
+            git checkout -b "$BRANCH" "origin/$BRANCH" || git checkout -b "$BRANCH"
             git rebase -X theirs "$REF"
           elif [ "$TYPE" == 'merge' ]; then
-            git checkout -b "$BRANCH" "origin/$BRANCH"
+            git checkout -b "$BRANCH" "origin/$BRANCH" || git checkout -b "$BRANCH"
             git merge -X theirs "$REF"
           elif [ "$TYPE" == 'squash' ]; then
             git checkout -b "$BRANCH" "$REF"
@@ -224,7 +219,7 @@ runs:
             echo "::error::Invalid merge type: $TYPE"
             exit 1
           fi
-          git push --force origin "$BRANCH"
+          git push --force origin "$BRANCH" || git push --set-upstream origin "$BRANCH"
           echo "Done with syncing $BRANCH"
           echo "::endgroup::"
         done
