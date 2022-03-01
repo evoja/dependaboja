@@ -199,16 +199,15 @@ runs:
         DEPCONF: ./.github/dependabot.${{steps.find_dependabot.outputs.ext}}
         REF: ${{github.ref}}
         TYPE: ${{inputs.merge_type}}
+        CREATE_IF_MISSED: ${{inputs.create_aggregated_branches_if_missed}}
       run: |
         TARGETS=($(yq e '[.updates[].["target-branch"]]|unique|.[]' "$DEPCONF"))
         for BRANCH in "${TARGETS[@]}"; do
           echo "::group::Syncing $BRANCH"
           if [ "$TYPE" == 'rebase' ]; then
-            git checkout -b "$BRANCH" "origin/$BRANCH" || git checkout -b "$BRANCH"
-            git rebase -X theirs "$REF"
+            git checkout -b "$BRANCH" "origin/$BRANCH" && git rebase -X theirs "$REF" || "$CREATE_IF_MISSED" &&  git checkout -b "$BRANCH" "$REF"
           elif [ "$TYPE" == 'merge' ]; then
-            git checkout -b "$BRANCH" "origin/$BRANCH" || git checkout -b "$BRANCH"
-            git merge -X theirs "$REF"
+            git checkout -b "$BRANCH" "origin/$BRANCH" && git merge -X theirs "$REF" || "$CREATE_IF_MISSED" && git checkout -b "$BRANCH" "$REF"
           elif [ "$TYPE" == 'squash' ]; then
             git checkout -b "$BRANCH" "$REF"
             git merge --squash -X ours "origin/$BRANCH"
