@@ -200,6 +200,12 @@ runs:
         TARGETS=($(yq e '[.updates[].["target-branch"]]|unique|.[]' "$DEPCONF"))
         for BRANCH in "${TARGETS[@]}"; do
           echo "::group::Syncing $BRANCH"
+          RESULT=$(curl \
+            -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/evoja/dependaboja/merges \
+            -d '{"base":"$BRANCH","head":"$REF"}')
+          if [$RESULT.status == '409']; then
           if [ "$TYPE" == 'rebase' ]; then
             git checkout -b "$BRANCH" "origin/$BRANCH"
             git rebase -X theirs "$REF"
@@ -216,6 +222,7 @@ runs:
             echo "::error::Invalid merge type: $TYPE"
             exit 1
           fi
+          if [$RESULT.status == '409']; then
           git push --force origin "$BRANCH"
           echo "Done with syncing $BRANCH"
           echo "::endgroup::"
