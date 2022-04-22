@@ -173,7 +173,7 @@ runs:
 
     - name: Deep clone
       if: ${{steps.shouldsync.outputs.shouldsync == 1}}
-      uses: actions/checkout@v2.4.1 # same as ec3a7ce113134d7a93b817d10a8272cb61118579
+      uses: actions/checkout@v2.4.2 # same as ec3a7ce113134d7a93b817d10a8272cb61118579
       with:
         fetch-depth: ${{inputs.fetch_depth}}
 
