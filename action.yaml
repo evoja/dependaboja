@@ -222,8 +222,10 @@ runs:
             echo "::error::Invalid merge type: $TYPE"
             exit 1
           fi
+          fi
           if [$RESULT.status == '409']; then
           git push --force origin "$BRANCH"
+          fi
           echo "Done with syncing $BRANCH"
           echo "::endgroup::"
         done
