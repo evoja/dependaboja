@@ -172,13 +172,16 @@ runs:
         fi
 
     - name: Deep clone
-      if: ${{steps.shouldsync.outputs.shouldsync == 1}}
+      if: ${{steps.shouldsync.outputs.shouldsync == 1 && inputs.fetch_depth != 0 }}
       env:
         DEEP: ${{inputs.fetch_depth}}
-      run: git fetch --depth={$DEEP} origin '+refs/heads/:refs/remotes/origin/'
-      # uses: actions/checkout@v2.4.0 # same as ec3a7ce113134d7a93b817d10a8272cb61118579
-      # with:
-      #   fetch-depth: ${{inputs.fetch_depth}}
+      run: git fetch --depth={$DEEP} origin '+refs/heads/*:refs/remotes/origin/*' 
+
+    - name: Action checkout if depth=0
+      if: ${{steps.shouldsync.outputs.shouldsync == 1 && inputs.fetch_depth == 0 }}
+      uses: actions/checkout@v2.4.0 # same as ec3a7ce113134d7a93b817d10a8272cb61118579
+      with:
+        fetch-depth: ${{inputs.fetch_depth}}
 
 
     - name: Configure git environment
