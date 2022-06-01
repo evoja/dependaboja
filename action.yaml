@@ -173,6 +173,7 @@ runs:
 
     - name: Deep clone
       if: ${{steps.shouldsync.outputs.shouldsync == 1 && inputs.fetch_depth != 0 }}
+      shell: bash
       env:
         DEEP: ${{inputs.fetch_depth}}
       run: git fetch --depth={$DEEP} origin '+refs/heads/*:refs/remotes/origin/*' 
