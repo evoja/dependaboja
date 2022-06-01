@@ -218,7 +218,7 @@ runs:
             echo "::error::Invalid merge type: $TYPE"
             exit 1
           fi
-          git push --force origin "$BRANCH" || git push --set-upstream origin "$BRANCH"
+          git push --force origin "$BRANCH"
           echo "Done with syncing $BRANCH"
           echo "::endgroup::"
         done
