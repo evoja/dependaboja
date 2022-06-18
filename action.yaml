@@ -205,9 +205,9 @@ runs:
         for BRANCH in "${TARGETS[@]}"; do
           echo "::group::Syncing $BRANCH"
           if [ "$TYPE" == 'rebase' ]; then
-            git checkout -b "$BRANCH" "origin/$BRANCH" && git rebase -X theirs "$REF" || "$CREATE_IF_MISSED" &&  git checkout -b "$BRANCH" "$REF" ||  git checkout "$BRANCH"
+            git checkout -b "$BRANCH" "origin/$BRANCH" && git rebase -X theirs "$REF" || "$CREATE_IF_MISSED" &&  git checkout -b "$BRANCH" "$REF" 
           elif [ "$TYPE" == 'merge' ]; then
-            git checkout -b "$BRANCH" "origin/$BRANCH" && git merge -X theirs "$REF" || "$CREATE_IF_MISSED" && git checkout -b "$BRANCH" "$REF" ||  git checkout "$BRANCH"
+            git checkout -b "$BRANCH" "origin/$BRANCH" && git merge -X theirs "$REF" || "$CREATE_IF_MISSED" && git checkout -b "$BRANCH" "$REF"
           elif [ "$TYPE" == 'squash' ]; then
             git checkout -b "$BRANCH" "$REF"
             git merge --squash -X ours "origin/$BRANCH"
