@@ -66,6 +66,8 @@ runs:
       env:
         DISABLED_TARGETS: ${{inputs.disabled_pr_targets}}
         BASE_REF: ${{github.base_ref}}
+        DEPCONF: ./.github/dependabot.${{steps.find_dependabot.outputs.ext}}
+        REF_NAME: ${{github.ref_name}}
       run: | # Check if the branch is enabled
         readarray -d , -t MERGEREFS <<< "$DISABLED_TARGETS"
         ENABLED=1
@@ -74,39 +76,30 @@ runs:
             ENABLED=0
           fi
         done
-        echo Do we merge?: $([ "$ENABLED" == 1 ] && echo yes || echo no)
-        echo "::set-output name=shouldmerge::$ENABLED"
-
-    #We need to find out if this branch exists in the dependabot configurations. 
-    #If it is not there, then we will not perform the merge.
-    - name: Read dependabot config and check target branch
-      id: shouldmergedppr
-      if: ${{steps.shouldmergepr.outputs.shouldmerge == 1}}
-      shell: bash
-      env:
-        DEPCONF: ./.github/dependabot.${{steps.find_dependabot.outputs.ext}}
-        REF_NAME: ${{github.ref_name}}
-      run: |
-        ENABLED=0
+        DEPENDABOT_BRANCH=1
         TARGETS=($(yq e '[.updates[].["target-branch"]]|unique|.[]' "$DEPCONF"))
         for BRANCH in "${TARGETS[@]}"; do
           if [ "$BRANCH" == "REF_NAME" ]; then
-            ENABLED=1
-            echo "::set-output name=shouldmergedp::$ENABLED"
+            DEPENDABOT_BRANCH=1
+            break
+          else
+            DEPENDABOT_BRANCH=0
           fi
         done
+        echo Do we merge?: $([ "$ENABLED" == 1 ] && [ "$DEPENDABOT_BRANCH" == 1 ] && echo yes || echo no)
+        echo "::set-output name=shouldmerge::$ENABLED"     
 
     # Well, we have figured out that we are not going to perform the merge.
     # Report about it to logs and skip all further steps.
     - name: Report skip branch
-      if: ${{github.event_name == 'pull_request' && steps.shouldmergepr.outputs.shouldmerge != 1 && steps.shouldmergedppr.outputs.shouldmergedp != 1}}
+      if: ${{github.event_name == 'pull_request' && steps.shouldmergepr.outputs.shouldmerge != 1}}
       shell: bash
       run: echo "::notice::Skip this PR"
 
 # Perform merge of the PR:
 
     - name: Merge the PR
-      if: ${{steps.shouldmergepr.outputs.shouldmerge == 1 && steps.shouldmergedppr.outputs.shouldmergedp == 1}}
+      if: ${{steps.shouldmergepr.outputs.shouldmerge == 1}}
       shell: bash
       env:
         PR_URL: ${{github.event.pull_request.html_url}}
