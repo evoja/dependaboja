@@ -78,7 +78,7 @@ All parameters are optional.
 
 #### merge_type
 
-Way of merge to use for syncing: `merge`, `rebase`, `squah`. Default is `rebase`.
+Way of merge to use for syncing: `merge`, `rebase`, `squash`. Default is `rebase`.
 
 #### committer_name, committer_email
 
