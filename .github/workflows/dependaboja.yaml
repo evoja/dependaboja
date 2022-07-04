@@ -3,7 +3,7 @@ name: dependaboja
 on:
   push:
     branches:
-      - dev
+      - master
   pull_request:
     branches: [deps/**]
 
@@ -20,5 +20,4 @@ jobs:
       - name: Dependaboja
         uses: evoja/dependaboja@v.0/0.2
         with:
-          disabled_pr_targets: dev,master
-          sync_with: dev
+          sync_with: master
