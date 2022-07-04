@@ -102,3 +102,19 @@ We need a deep fetch in order to merge. It limits the max value. Default is `0`.
 
 You might want to use it for repositories with huge amount of commits when you know
 that some smaller number is sufficient for merging.
+
+#### create_aggregated_branches_if_missed
+
+If an aggregated target branch is missed Dependaboja creates it.
+Default value is `true`.
+
+There are different reasons why target branches can be missed.
+They can be deleted automatically by GitHub after pushing updates
+to `master` with a PR. Also it can be a boring work to create them
+manually on the original setup because it might be plenty
+of aggregated branches. In this case they can be configured
+in `dependabot.yml` only and Dependaboje creates all target branches
+for you.
+
+Having target branches in repository in important because otherwise
+dependabot becomes stuck with errors on missed branches.

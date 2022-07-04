@@ -24,7 +24,10 @@ inputs:
     description: We need a deep fetch in order to merge. It limits the max value. Default is 0
     required: false
     default: 0
-
+  create_aggregated_branches_if_missed:
+    description: If an aggregated target branch is missed Dependaboja creates it. That should prevent dependabot from being stuck with errors on missed target branches.
+    required: false
+    default: true
 
 outputs: {}
 
@@ -196,22 +199,24 @@ runs:
         DEPCONF: ./.github/dependabot.${{steps.find_dependabot.outputs.ext}}
         REF: ${{github.ref}}
         TYPE: ${{inputs.merge_type}}
+        CREATE_IF_MISSED: ${{inputs.create_aggregated_branches_if_missed}}
       run: |
         TARGETS=($(yq e '[.updates[].["target-branch"]]|unique|.[]' "$DEPCONF"))
         for BRANCH in "${TARGETS[@]}"; do
           echo "::group::Syncing $BRANCH"
           if [ "$TYPE" == 'rebase' ]; then
-            git checkout -b "$BRANCH" "origin/$BRANCH"
-            git rebase -X theirs "$REF"
+            git checkout -b "$BRANCH" "origin/$BRANCH" && git rebase -X theirs "$REF" \
+            || ("$CREATE_IF_MISSED" && git checkout -b "$BRANCH" "$REF")
           elif [ "$TYPE" == 'merge' ]; then
-            git checkout -b "$BRANCH" "origin/$BRANCH"
-            git merge -X theirs "$REF"
+            git checkout -b "$BRANCH" "origin/$BRANCH" && git merge -X theirs "$REF" \
+          || ("$CREATE_IF_MISSED" && git checkout -b "$BRANCH" "$REF")
           elif [ "$TYPE" == 'squash' ]; then
             git checkout -b "$BRANCH" "$REF"
-            git merge --squash -X ours "origin/$BRANCH"
-            if [ -n "$(git status --porcelain)" ]; then
+            git merge --squash -X ours "origin/$BRANCH" \
+            && if [ -n "$(git status --porcelain)" ]; then
               git commit --no-edit
-            fi;
+            fi \
+            || "$CREATE_IF_MISSED"
           else
             echo "::error::Invalid merge type: $TYPE"
             exit 1
