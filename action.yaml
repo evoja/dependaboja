@@ -207,7 +207,7 @@ runs:
           RESULT=$(curl \
             -X POST \
             -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/evoja/dependaboja/merges \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/merges \
             -d '{"base":"$BRANCH","head":"$REF"}')
           if [$RESULT.status == '409']; then
           if [ "$TYPE" == 'rebase' ]; then
