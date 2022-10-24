@@ -15,9 +15,10 @@
 
 
 ## v0.0
-#### [Unreleased][unreleased]
+#### [0.0.3] - [2022-10-09][c-0.0.3]
 ##### Added
 Create deps branches if they do not exist
+
 
 #### [0.0.2] - [2022-01-26][c-0.0.2]
 ##### Fixed
@@ -43,12 +44,15 @@ Merge dependabot PRs to aggregated branches and sync the aggregated branches wit
 ------------
 Changelog file follows [this convention](https://keepachangelog.com/)
 
-[unreleased]: https://github.com/evoja/dependaboja/compare/v.0/0.2...master
+[unreleased]: https://github.com/evoja/dependaboja/compare/0.0.3...master
 
-[c-0.0.2]: https://github.com/evoja/dependaboja/compare/v.0/0.1...v.0/0.2
-[0.0.2]: https://github.com/evoja/dependaboja/tree/v.0/0.2
+[c-0.0.3]: https://github.com/evoja/dependaboja/compare/0.0.2...0.0.3
+[0.0.3]: https://github.com/evoja/dependaboja/tree/0.0.3
 
-[c-0.0.1]: https://github.com/evoja/dependaboja/compare/v.0/0.0...v.0/0.1
-[0.0.1]: https://github.com/evoja/dependaboja/tree/v.0/0.1
+[c-0.0.2]: https://github.com/evoja/dependaboja/compare/0.0.1...0.0.2
+[0.0.2]: https://github.com/evoja/dependaboja/tree/0.0.2
 
-[0.0.0]: https://github.com/evoja/dependaboja/tree/v.0/0.0
+[c-0.0.1]: https://github.com/evoja/dependaboja/compare/0.0.0...0.0.1
+[0.0.1]: https://github.com/evoja/dependaboja/tree/0.0.1
+
+[0.0.0]: https://github.com/evoja/dependaboja/tree/0.0.0

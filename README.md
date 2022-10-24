@@ -110,11 +110,25 @@ Default value is `true`.
 
 There are different reasons why target branches can be missed.
 They can be deleted automatically by GitHub after pushing updates
-to `master` with a PR. Also it can be a boring work to create them
+to `master` with a PR. Also, it can be a boring work to create them
 manually on the original setup because it might be plenty
 of aggregated branches. In this case they can be configured
-in `dependabot.yml` only and Dependaboje creates all target branches
+in `dependabot.yml` only and Dependaboja creates all target branches
 for you.
 
 Having target branches in repository in important because otherwise
 dependabot becomes stuck with errors on missed branches.
+
+## First run explanation
+
+If there are no target branches it only will be created on first run.
+This is caused by GitHub action script configuration.
+
+![workflow scheme](./workflow.png)
+
+- The first step of it is checking dependencies with dependabot.
+- The second step is creating branches and merging PR's.
+
+This way on the first run dependabot will not find target branches,
+but it will be created on second step.
+On the second run target branches will be existed.
