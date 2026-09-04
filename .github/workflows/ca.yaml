@@ -17,4 +17,4 @@ jobs:
         uses: actions/checkout@v7.0.0 # same as ec3a7ce113134d7a93b817d10a8272cb61118579
 
       - name: Check editorconfig
-        uses: editorconfig-checker/action-editorconfig-checker@v2.0.0 # same as 0527b11555ed46afd00df746f35b79cb7f7b68c2
+        uses: editorconfig-checker/action-editorconfig-checker@v3.0.0 # same as 0527b11555ed46afd00df746f35b79cb7f7b68c2
